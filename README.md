@@ -10,9 +10,9 @@
   - [한국어 지원 테스트](#%ED%95%9C%EA%B5%AD%EC%96%B4-%EC%A7%80%EC%9B%90-%ED%85%8C%EC%8A%A4%ED%8A%B8)
 - [reStructuredText](#restructuredtext)
   - [문법 및 Markdown 과의 관계](#%EB%AC%B8%EB%B2%95-%EB%B0%8F-markdown-%EA%B3%BC%EC%9D%98-%EA%B4%80%EA%B3%84)
+    - [Directives](#directives)
   - [pdf, html 생성 (sphinx를 이용)](#pdf-html-%EC%83%9D%EC%84%B1-sphinx%EB%A5%BC-%EC%9D%B4%EC%9A%A9)
-  - [latex 설치 (basic-miktex-22.10-x64.exe)](#latex-%EC%84%A4%EC%B9%98-basic-miktex-2210-x64exe)
-  - [perl 설치 (strawberry-perl-5.32.1.1-64bit.msi)](#perl-%EC%84%A4%EC%B9%98-strawberry-perl-53211-64bitmsi)
+    - [index로 문서 연결 및 한국어 문제 해결](#index%EB%A1%9C-%EB%AC%B8%EC%84%9C-%EC%97%B0%EA%B2%B0-%EB%B0%8F-%ED%95%9C%EA%B5%AD%EC%96%B4-%EB%AC%B8%EC%A0%9C-%ED%95%B4%EA%B2%B0)
 
 <!-- /toc -->
 
@@ -236,6 +236,16 @@ statemachine.py
 - rst는 좀 더 복잡한 문서 작성 및 python docstring 과 같은 프로그래밍 문서화에 특화되어 있다.
   - 또한 다양한 문서 형태로 변환가능하다.
 
+#### Directives
+
+- Table of Contents
+[https://docutils.sourceforge.io/docs/ref/rst/directives.html#table-of-contents]
+
+  ```rst
+  .. contents:: Table of Contents
+   :depth: 2
+  ```
+
 ### pdf, html 생성 (sphinx를 이용)
 
 on windows
@@ -257,26 +267,71 @@ on windows
 ### "latexmk 명령어 없음"
 ### latex 설치로 해결
 ### "latexmk"는 perl로 구현되어있어 perl 설치 필요
+
+### 이렇게 그냥 실행하면 문서가 연결되어 있지 않아서 내용이 비어있는 pdf가 생성될 것이다.
+### 따라서 아래 "index 연결 및 한국어 문제 해결을 참조"한다.
 ```
 
-### latex 설치 (basic-miktex-22.10-x64.exe)
+- latex 설치 (basic-miktex-22.10-x64.exe)
+  [https://miktex.org/download]
+  
+  ```cmd
+  ### 설치 확인
+  > latex --version   
+  MiKTeX-pdfTeX 4.14 (MiKTeX 23.1)
+  ```
 
-[https://miktex.org/download]
+- perl 설치 (strawberry-perl-5.32.1.1-64bit.msi)
+  [https://www.perl.org/get.html]
+  [https://strawberryperl.com/]
+  
+  ```cmd
+  ### 설치 확인
+  > perl --version
+  This is perl 5, version 32, subversion 1 (v5.32.1) built for MSWin32-x64-multi-thread
+  ```
 
-```cmd
-### 설치 확인
-> latex --version   
-MiKTeX-pdfTeX 4.14 (MiKTeX 23.1)
-```
+#### index로 문서 연결 및 한국어 문제 해결
 
-### perl 설치 (strawberry-perl-5.32.1.1-64bit.msi)
+- 문서 연결을 위해 index.rst 를 수정한다.
 
-- `https://www.perl.org/get.html`
-- `https://strawberryperl.com/`
+  ```rst
+  .. toctree::
+    :maxdepth: 2
+    :caption: Contents:
 
-```cmd
-### 설치 확인
-> perl --version
-This is perl 5, version 32, subversion 1 (v5.32.1) built for MSWin32-x64-multi-thread
-Copyright 1987-2021, Larry Wall
-```
+    QuickStart.rst
+  ```
+
+- 한국어 지원을 위해 conf.py 를 수정한다.
+
+  ```python
+  project = '빠른 시작을 위한 가이드'
+  copyright = '2023, 이인영'
+  author = '이인영'
+  release = '1.0'
+  
+  extensions = []
+  
+  templates_path = ['_templates']
+  exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+  
+  language = 'ko'
+  
+  html_theme = 'alabaster'
+  html_static_path = ['_static']
+  
+  # 한글 폰트 설정
+  from matplotlib import rcParams
+  rcParams['font.family'] = 'sans-serif'
+  rcParams['font.sans-serif'] = ['NanumGothic']
+  latex_elements = {
+      'preamble': r'''
+          \usepackage{kotex}
+          \usepackage{tikz}
+          \usepackage{pgfplots}
+      '''
+  }
+  ```
+
+  - project, copyright, author, language는 "sphinx-quickstart" 실행 입력한 값이다.

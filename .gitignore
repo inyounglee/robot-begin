@@ -12,9 +12,10 @@ statemachine.html
 _build/
 _static/
 _templates/
-/make.bat
-/Makefile
-/index.rst
+make.bat
+Makefile
+index.rst
+/QuickStartGuide/conf.py
 
 ### Python ###
 # Byte-compiled / optimized / DLL files

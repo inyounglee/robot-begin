@@ -3,12 +3,9 @@
    :depth: 2
 
 login.py의 동작
-==============
+================
 
-* 소스
-sut/login.py
-
-.. cmd::
+.. code:: shell
 
     $ python sut/login.py
     $ python sut/login.py create inyoung Pass1234
@@ -327,9 +324,6 @@ this demo. The library is located at `<lib/LoginLibrary.py>`_, and its source
 code is also copied below. Looking at the code you can see, for example, how
 the keyword `Create User` is mapped to actual implementation of the method
 `create_user`.
-
-* keyword `Create User`는 create_user 함수와 매칭된다.
-* 즉, LoginLibrary의 함수명은 keyword와 매칭된다.
 
 .. code:: python
 
