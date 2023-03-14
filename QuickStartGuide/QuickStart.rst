@@ -37,7 +37,7 @@ easy-to-use tabular test data syntax and it utilizes the keyword-driven
 testing approach. Its testing capabilities can be extended by test libraries
 implemented either with Python or Java, and users can create new higher-level
 keywords from existing ones using the same syntax that is used for creating
-test cases 한글을 중간에 넣어본다.
+test cases.
 
 Robot Framework is operating system and application independent. The core
 framework is implemented using `Python <http://python.org>`_ and runs also on

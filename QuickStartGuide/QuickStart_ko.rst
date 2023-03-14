@@ -155,14 +155,14 @@ Workflow tests
 
     잘못된 비밀번호로 로그인 시도
         유효한 사용자 생성    betty    P4ssw0rd
-        로그인 시도    betty    wrong
+        Attempt to login with credentials    betty    wrong
         Status Should Be    Access Denied
 
 위에서 보듯이, 테스트 케이스는 테스트의 흐름을 정의한다.
 
 - "사용자 계정 생성 로그인 기능", "잘못된 비밀번호로 로그인 시도"은 테스트 케이스의 이름이고,
   테스트 결과 레포트에 기술되는데 사용된다.
-- "유효한 사용자 생성"과 "로그인 시도"는 키워드이다. (**_사용자 정의 키워드_** 이다.)
+- "유효한 사용자 생성"과 "로그인 시도"는 테스트 실행을 위한 키워드이다. (**_사용자 정의 키워드_** 이다.)
 - "Status Should Be"는 라이브러리와 매칭되는 키워드로 함수명과 동일해야 한다.
   아래 코드 예제에서 "status_should_be" 함수명을 확인할 수 있다. (대소문자를 구분하지 않는다.)
 
@@ -293,7 +293,7 @@ User keywords
         Create user    example    ${password}
         Status should be    Creating user failed: ${error}
 
-    로그인
+    로그인 시도
         [Arguments]    ${username}    ${password}
         Attempt to login with credentials    ${username}    ${password}
         Status should be    Logged In
@@ -305,11 +305,11 @@ User keywords
         유효한 사용자 생성    ${USERNAME}    ${PASSWORD}
 
     비밀번호를 변경할 수 있다
-        비밀번호 변경    ${USERNAME}    ${PASSWORD}    ${NEW PASSWORD}
+        Change password     ${USERNAME}    ${PASSWORD}    ${NEW PASSWORD}
         Status should be    SUCCESS
 
     새로운 비밀번호로 로그인 할 수 있다
-        로그인    ${USERNAME}    ${NEW PASSWORD}
+        로그인 시도    ${USERNAME}    ${NEW PASSWORD}
 
     이전 비밀번호로는 로그인 할 수 없다
         Attempt to login with credentials    ${USERNAME}    ${PASSWORD}
@@ -333,7 +333,7 @@ Defining variables
     ${PASSWORD}               J4n3D0e
     ${NEW PASSWORD}           e0D3n4J
     ${DATABASE FILE}          ${TEMPDIR}${/}robotframework-quickstart-db.txt
-    ${PWD INVALID LENGTH}     test Password must be 7-12 characters long 어야 한다.
+    ${PWD INVALID LENGTH}     Password must be 7-12 characters long
     ${PWD INVALID CONTENT}    Password must be a combination of lowercase and uppercase letters and numbers
 
 변수는 테스트 실행 시에 command line에서 변경할 수 있다.
@@ -360,7 +360,7 @@ Using variables
   데이터베이스 내용을 설정하고,
   `BuiltIn`_ 키워드인 `Should Contain` 를 사용하여 내용을 확인한다.
   라이브러리 키워드와 사용자 키워드 모두 반환값을 가질 수 있다.
-- `[Tags]` 는 `Using tags`_ 에서 설명한다.
+- `[Tags]` 는 `태그 사용하기`_ 에서 설명한다.
 
 .. _User keyword: `User keywords`_
 .. _BuiltIn: `Standard libraries`_
@@ -372,7 +372,7 @@ Using variables
         [Tags]    variables    database
         유효한 사용자 생성    ${USERNAME}    ${PASSWORD}
         Database Should Contain    ${USERNAME}    ${PASSWORD}    Inactive
-        Login    ${USERNAME}    ${PASSWORD}
+        로그인 시도    ${USERNAME}    ${PASSWORD}
         Database Should Contain    ${USERNAME}    ${PASSWORD}    Active
 
     *** Keywords ***
@@ -426,32 +426,39 @@ Test cases 의 집합을 *test suite* 라고 한다.
 Setups and teardowns
 --------------------
 
-If you want certain keywords to be executed before or after each test,
-use the `Test Setup` and `Test Teardown` settings in the settings table.
-Similarly you can use the `Suite Setup` and `Suite Teardown` settings to
-specify keywords to be executed before and/or after an entire test suite.
+각 테스트 전후에 특정 키워드 액션이 실행되도록 설정할 수 있다.
 
-Individual tests can also have a custom setup or teardown by using `[Setup]`
-and `[Teardown]` in the test case table. This works the same way as
-`[Template]` was used earlier with `data-driven tests`_.
+테스트 전체에 적용되도록 하기 위해서
 
-In this demo we want to make sure the database is cleared before execution
-starts and that every test also clears it afterwards:
+- `*** Settings ***` 섹션에 기술한다.
+- 각 `Test cases`_ 전 또는 후에 실행되도록 하려면 `Test Setup` 과 `Test Teardown` 을
+- 전체 `Test suites`_ 전 또는 후에 실행되도록 하려면 `Suite Setup` 과 `Suite Teardown` 로 기술한다.
+
+각 `Test cases`_ 안에
+
+- `[Setup]` 과 `[Teardown]` 을 사용하여 특정 키워드를 실행하도록 설정할 수 있다.
+  이는 `data-driven tests`_ 에서 `[Template]` 을 사용하는 것과 같이 기술한다.
+
+이 가이드의 테스트에서는 각 테스트가 실행된 후에 데이터베이스를 비우도록 설정한다:
 
 .. code:: robotframework
 
     *** Settings ***
-    Suite Setup       Clear Login Database
-    Test Teardown     Clear Login Database
+    Suite Setup       로그인 데이터 파일 삭제
+    Test Teardown     로그인 데이터 파일 삭제
 
-Using tags
-----------
 
-Robot Framework allows setting tags for test cases to give them free metadata.
-Tags can be set for all test cases in a file with `Force Tags` and `Default
-Tags` settings like in the table below. It is also possible to define tags
-for a single test case using `[Tags]` settings like in earlier__ `User
-status is stored in database` test.
+태그 사용하기
+--------------
+
+각 테스트 마다 또는 전체 테스트에 메타 정보로 사용하기 위한 태그를 설정할 수 있다.
+
+각 테스트마다 안에 태그를 설정하려면 `[Tags]` 를 사용한다.
+예를 들어, 이전의 Test case의 `User status is stored in database`__ 테스트는
+`variables` 와 `database` 라는 두 개의 태그를 가진다.
+
+파일안의 전체 테스트에 태그를 설정하려면
+`*** Settings ***` 섹션에 `Force Tags` 와 `Default Tags` 를 사용하여 설정한다.
 
 __ `Using variables`_
 
@@ -461,28 +468,27 @@ __ `Using variables`_
     Force Tags        quickstart
     Default Tags      example    smoke
 
-When you look at a report after test execution, you can see that tests have
-specified tags associated with them and there are also statistics generated
-based on tags. Tags can also be used for many other purposes, one of the most
-important being the possibility to select what tests to execute. You can try,
-for example, the following commands::
+태그는 보고서와 같은 다양한 곳에서 다양한 용도로 사용되어 질 수 있으며,
+테스트를 실행할 때 어떤 테스트를 실행할지 선택하는 데에도 사용된다.
 
-    robot --include smoke QuickStart.rst
-    robot --exclude database QuickStart.rst
+예를 들어 다음과 같이 실행할 수 있다:
+
+.. code:: console
+
+    $ robot --include smoke QuickStart.rst
+    $ robot --exclude database QuickStart.rst
+
 
 Creating test libraries
 =======================
 
-Robot Framework offers a simple API for creating test libraries using either
-Python or Java, and the remote library interface also allows using other
-programming languages. `Robot Framework User Guide`_ contains a detailed
-description about the library API.
+- 본 가이드의 테스트를 위해서는 `LoginLibrary` 라는 테스트 라이브러리가 필요하다.
+- 이 라이브러리는 `Python`_ 으로 작성되었으며, `<lib/LoginLibrary.py>`_ 에 위치하고 있다.
+- 라이브러리의 설정은 `Library keywords`_ 에서 확인할 수 있다.
+- 테스트 케이스에서 실행하기 위한 키워드와 라이브러리 함수의 매핑은 이름으로 이루어지며,
+  예를 들어 `Create User` 키워드는 `create_user` 함수에 매핑된다.
 
-As an example, we can take a look at the `LoginLibrary` test library used in
-this demo. The library is located at `<lib/LoginLibrary.py>`_, and its source
-code is also copied below. Looking at the code you can see, for example, how
-the keyword `Create User` is mapped to actual implementation of the method
-`create_user`.
+다음은 `LoginLibrary` 라이브러리의 코드이다:
 
 .. code:: python
 
