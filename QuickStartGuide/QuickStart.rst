@@ -13,9 +13,6 @@ __ http://creativecommons.org/licenses/by/3.0/
    :local:
    :depth: 2
 
-   QuickStart.rst
-
-
 Introduction
 ============
 

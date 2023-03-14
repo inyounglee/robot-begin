@@ -1,3 +1,6 @@
+.. contents:: Table of Contents
+   :local:
+   :depth: 2
 
 .. DANGER::
    Beware killer rabbits!

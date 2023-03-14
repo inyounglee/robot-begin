@@ -1,9 +1,90 @@
+.. default-role:: code
+
+============================================
+  Robot Framework Quick Start Guide 한글버전
+============================================
+
 .. contents:: Table of contents:
    :local:
    :depth: 2
 
-login.py의 동작
-================
+
+시작하기 전에
+=============
+
+이 문서에 대하여
+----------------
+
+이 문서는 reStructuredText_ 마크업 문법을 사용하여 작성되었으며
+Robot Framework의 사용법을 소개하면서 동시에 다음과 같은 명령으로
+테스트 자동화를 수행할 수 있다.
+
+.. code:: shell
+
+    $ robot QuickStart_ko.rst
+
+문서를 작성하다 보면, 다음과 같은 오류가 발생할 수 있으며,
+관련된 해결 방법은 `rst 오류 관련 Note`_ 에 기술하였다.
+
+rst 오류 관련 Note
+------------------
+
+- "Inline interpreted text or phrase reference start-string without end-string."와 같은 오류 발생 시:
+  한글과 함께 사용할 때 end-string에서 한칸 띄운다.
+
+
+Robot Framework 소개
+--------------------
+
+`Robot Framework`_ 은 수용 테스트(acceptance testing)와 수용 테스트 주도 개발(ATDD)을 위한
+오픈 소스 테스트 자동화 프레임워크이다.
+키워드 주도 테스트(keyword-driven testing) 접근법으로 "tabular test data syntax"를 사용하여
+쉽게 테스트 케이스 `Test cases`_ 를 작성할 수 있다.
+
+`Robot Framework`_ 은 operating system과 application에 독립적이며,
+`Python <http://python.org>`_ 으로 구현되어 있으며
+`Jython <http://jython.org>`_ (JVM) 과 `IronPython <http://ironpython.net>`_ (.NET)에서
+동작할 수 있다.
+
+.. _Robot Framework: http://robotframework.org
+
+
+이 가이드를 위한 설치 및 실행 방법
+==================================
+
+설치
+-------------
+
+`Robot Framework`_ 설치
+
+.. code:: shell
+
+    $ pip install robotframework
+
+이 문서는 reStructuredText_ markup language를 사용하여 작성되었으며,
+Robot Framework test data를 code blocks에 포함하고 있다.
+이러한 형식으로 테스트를 실행하려면 추가적으로 `docutils`_ 를 설치해야 한다.
+
+`docutils`_ 설치
+
+.. code:: shell
+
+    $ pip install docutils
+
+
+참조 링크:
+
+- `Robot Framework installation instructions`_
+
+.. _docutils: https://pypi.python.org/pypi/docutils
+.. _`Robot Framework installation instructions`:
+   https://github.com/robotframework/robotframework/blob/master/INSTALL.rst
+
+
+테스트 대상: 데모 어플리케이션 login.py의 동작
+----------------------------------------------
+
+데모 어플리케이션은 계정 생성, 로그인, 비밀번호 변경 기능 등을 제공한다.
 
 .. code:: shell
 
@@ -18,6 +99,46 @@ login.py의 동작
     - change-password
     - help
 
+
+테스트 실행
+-------------
+
+테스트를 실행하기 위해서는 다음과 같은 명령을 사용한다.
+
+.. code:: console
+
+    $ robot QuickStart_ko.rst
+
+또는, 다음과 같이 options을 이용하여 실행할 수도 있다.    
+
+.. code:: console
+
+    $ robot --log custom_log.html --name Custom_Name QuickStart.rst
+
+
+테스트 결과 보기
+-------------------
+
+위 명령을 실행하면 다음과 같은 파일이 생성되어 테스트 결과를 확인할 수 있다.
+
+`report.html <http://robotframework.org/QuickStartGuide/report.html>`__
+    Higher level test report.
+`log.html <http://robotframework.org/QuickStartGuide/log.html>`__
+    Detailed test execution log.
+`output.xml <http://robotframework.org/QuickStartGuide/output.xml>`__
+    Results in machine readable XML format.
+
+
+참조 매뉴얼:
+------------
+- `Robot Framework User Guide`_
+- `reStructuredText`_ 를 위한 `rst 빠른 참조 매뉴얼`_
+
+.. _Robot Framework User Guide: http://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html
+.. _reStructuredText: https://docutils.sourceforge.io/rst.html
+.. _rst 빠른 참조 매뉴얼: https://docutils.sourceforge.io/docs/user/rst/quickref.html
+
+
 Test cases
 ==========
 
@@ -29,52 +150,70 @@ Workflow tests
     *** Test Cases ***
     사용자 계정 생성,로그인 기능
         유효한 사용자 생성    fred    P4ssw0rd
-        Attempt to Login with Credentials    fred    P4ssw0rd
+        로그인 시도    fred    P4ssw0rd
         Status Should Be    Logged In
 
-    User cannot log in with bad password
+    잘못된 비밀번호로 로그인 시도
         유효한 사용자 생성    betty    P4ssw0rd
-        Attempt to Login with Credentials    betty    wrong
+        로그인 시도    betty    wrong
         Status Should Be    Access Denied
+
+위에서 보듯이, 테스트 케이스는 테스트의 흐름을 정의한다.
+
+- "사용자 계정 생성 로그인 기능", "잘못된 비밀번호로 로그인 시도"은 테스트 케이스의 이름이고,
+  테스트 결과 레포트에 기술되는데 사용된다.
+- "유효한 사용자 생성"과 "로그인 시도"는 키워드이다. (**_사용자 정의 키워드_** 이다.)
+- "Status Should Be"는 라이브러리와 매칭되는 키워드로 함수명과 동일해야 한다.
+  아래 코드 예제에서 "status_should_be" 함수명을 확인할 수 있다. (대소문자를 구분하지 않는다.)
+
+코드 예제:
+
+.. code:: python
+
+    class LoginLibrary(object):
+
+        def status_should_be(self, expected_status):
+            if expected_status != self._status:
+                raise AssertionError("Expected status to be '%s' but was '%s'."
+                                    % (expected_status, self._status))
+
 
 Higher-level tests
 ------------------
 
-Test cases can also be created using only high-level keywords that take no
-positional arguments. This style allows using totally free text which is
-suitable for communication even with non-technical customers or other project
-stakeholders. This is especially important when using the `acceptance
-test-driven development`__ (ATDD) approach or any of its variants and created
-tests act also as requirements.
+사용자 정의 키워드를 사용하여 테스트 케이스를 더 높은 수준으로 추상화할 수 있으며,
+테스트 기반 개발 `acceptance test-driven development (ATDD)`__ 및
+행위 중심 개발 `behavior-driven development (BDD)`__ 등에 유용하게 활용되어질 수 있다.
 
-Robot Framework does not enforce any particular style for writing test cases.
-One common style is the *given-when-then* format popularized by
-`behavior-driven development`__ (BDD):
+다음은 BDD의 *given-when-then* 형식을 사용한 예이다:
 
 .. code:: robotframework
 
     *** Test Cases ***
-    User can change password
+    사용자 비밀번호 변경 기능
         Given 사용자는 계정을 가지고 있다
-        When she changes her password
-        Then she can log in with the new password
-        And she cannot use the old password anymore
+        When 비밀번호를 변경할 수 있다
+        Then 새로운 비밀번호로 로그인 할 수 있다
+        And 이전 비밀번호로는 로그인 할 수 없다
+
+__ http://en.wikipedia.org/wiki/Acceptance_test-driven_development
+__ http://en.wikipedia.org/wiki/Behavior_driven_development
+
 
 Data-driven tests
 -----------------
 
-Quite often several test cases are otherwise similar but they have slightly
-different input or output data. In these situations *data-driven tests*
-allows varying the test data without duplicating the workflow. With Robot
-Framework the `[Template]` setting turns a test case into a data-driven test
-where the template keyword is executed using the data defined in the test case
-body:
+- 여러가지 데이터 유형으로 입력값을 변경하면서 테스트를 반복할 수 있다.
+- `[Template]` 설정으로 테스트 케이스를 데이터 드라이브 테스트로 만들 수 있다.
+
+아래는 "안전하지 않은 비밀번호로 계정을 생성하면 실패해야 한다" 키워드로 정의된
+테스트 케이스를 사용한 예이다:
 
 .. code:: robotframework
 
     *** Test Cases ***
     유효하지 않은 비밀번호
-        [Template]    Creating user with invalid password should fail
+        [Template]    안전하지 않은 비밀번호로 계정을 생성하면 실패해야 한다
         abCD5            ${PWD INVALID LENGTH}
         abCD567890123    ${PWD INVALID LENGTH}
         123DEFG          ${PWD INVALID CONTENT}
@@ -82,43 +221,40 @@ body:
         AbCdEfGh         ${PWD INVALID CONTENT}
         abCD56+          ${PWD INVALID CONTENT}
 
-In addition to using the `[Template]` setting with individual tests, it would
-be possible to use the `Test Template` setting once in the settings table like
-`setups and teardowns`_ defined later in this guide. In our case that
-would ease creating separate named tests for invalid length password cases and
-for other invalid cases. However, that would require moving those tests to a
-separate file, because otherwise the template would also be applied to other
-tests in this file.
+개별 테스트에서 `[Template]` 설정을 사용하는 것 외에도 이 가이드의 후반부에 정의된
+`setups and teardowns`_ 와 같은 설정 테이블에서 테스트 템플릿 설정을 한 번 사용할 수 있다.
+유효하지 않은 길이의 암호 사례와 기타 유효하지 않은 사례에 대해 별도의 명명된 테스트를
+쉽게 만들 수 있다. 그러나 템플릿이 이 파일의 다른 테스트에도 적용되기 때문에
+해당 테스트를 별도의 파일로 옮겨야 한다.
 
-Notice also that the error messages in the above example are specified using
-variables_.
+- `${PWD INVALID LENGTH}`, `${PWD INVALID CONTENT}` 는 variables_ 에 정의된 변수이다.
+
 
 Keywords
 ========
 
-Test cases are created from keywords that can come from two sources. `Library
-keywords`_ come from imported test libraries, and so called `user keywords`_
-can be created using the same tabular syntax that is used for creating test
-cases.
+Robot Framework에서 테스트 케이스는 키워드를 사용하여 테스트의 흐름을 정의한다.
+키워드는 "라이브러리에서 가져온 키워드" `Library keywords`_ 또는
+"사용자 정의 키워드" `user keywords`_ 일 것이다.
 
 Library keywords
 ----------------
 
-All lowest level keywords are defined in test libraries which are implemented
-using standard programming languages, typically Python or Java. Robot Framework
-comes with a handful of `test libraries`_ that can be divided to *standard
-libraries*, *external libraries* and *custom libraries*. `Standard libraries`_
-are distributed with the core framework and included generic libraries such as
-`OperatingSystem`, `Screenshot` and `BuiltIn`, which is special because its
-keywords are available automatically. External libraries, such as
-Selenium2Library_ for web testing, must be installed separately. If available
-test libraries are not enough, it is easy to `create custom test libraries`__.
+가장 하위 키워드는 표준 프로그래밍 언어로 구현된 "테스트 라이브러리"에 정의되어 있으며,
+"표준 라이브러리", "외부 라이브러리" 및 "사용자 정의 라이브러리"로 나눌 수 있다.
 
-To be able to use keywords provided by a test library, the keywords must be
-imported using the `Library` setting. Tests in this guide need keywords from
-the standard `OperatingSystem` library (e.g. `Remove File`) and from a custom
-made `LoginLibrary` (e.g.  `Attempt to login with credentials`). Both of these
-libraries are imported in the settings table below:
+- `*** Settings ***` 섹션 `Library` 를 사용하여 정의한다.
+- "표준 라이브러리" `Standard libraries`_ 는 
+  `OperatingSystem`, `Screenshot` and `BuiltIn` 등이 있으며,
+- "외부 라이브러리"는 예를 들어 웹을 테스트하기 위한 `Selenium2Library`_ 가 있는데
+  이는 별도로 설치해야 한다.
+- 그리고 "사용자 정의 라이브러리"는 `create custom test libraries`__ 와 같이 구현하고
+  `Library` 설정을 사용하여 import 한 후 사용할 수 있다.
+
+이 가이드에서는 `OperatingSystem` 라이브러리 (`Remove File` 등을 위해)와,
+`LoginLibrary` 라이브러리 (`Attempt to login with credentials` 등을 위해)를 import 한다.
+
+아래는 `OperatingSystem` 라이브러리와 `LoginLibrary` 라이브러리를 import 하는 예이다:
 
 .. code:: robotframework
 
@@ -126,7 +262,6 @@ libraries are imported in the settings table below:
     Library           OperatingSystem
     Library           lib/LoginLibrary.py
 
-.. _Test libraries: http://robotframework.org/#libraries
 .. _Standard libraries: http://robotframework.org/robotframework/#standard-libraries
 .. _Selenium2Library: https://github.com/rtomac/robotframework-selenium2library/#readme
 __ `Creating test libraries`_
@@ -134,17 +269,18 @@ __ `Creating test libraries`_
 User keywords
 -------------
 
-One of the most powerful features of Robot Framework is the ability to easily
-create new, higher-level keywords from other keywords. The syntax for creating
-these so called *user-defined keywords*, or *user keywords* for short, is
-similar to the syntax that is used for creating test cases. All the
-higher-level keywords needed in previous test cases are created in this
-keyword table:
+- 위에서 사용된 상위 키워드들은 아래의 키워드 테이블에 정의되어 있는 것들이다.
+- *user-defined keywords* 또는 줄여서 *user keywords* 라고 명칭한다.
+- `*** keywords ***` 섹션에 정의한다.
+- `Test cases`_ 를 정의하듯이 상위 수준의 키워드를 만들 수 있다.
+- 입력값은 `[Arguments]` 설정을 사용하여 정의한다.
+- 아래 keywords에서 "Remove file", "Create user", "Status should be",
+  "Attempt to login with credentials"는 하위 키워드들로 `Library keywords`_ 이다.
 
 .. code:: robotframework
 
     *** Keywords ***
-    Clear login database
+    로그인 데이터 파일 삭제
         Remove file    ${DATABASE FILE}
 
     유효한 사용자 생성
@@ -152,12 +288,12 @@ keyword table:
         Create user    ${username}    ${password}
         Status should be    SUCCESS
 
-    Creating user with invalid password should fail
+    안전하지 않은 비밀번호로 계정을 생성하면 실패해야 한다
         [Arguments]    ${password}    ${error}
         Create user    example    ${password}
         Status should be    Creating user failed: ${error}
 
-    Login
+    로그인
         [Arguments]    ${username}    ${password}
         Attempt to login with credentials    ${username}    ${password}
         Status should be    Logged In
@@ -168,24 +304,17 @@ keyword table:
     사용자는 계정을 가지고 있다
         유효한 사용자 생성    ${USERNAME}    ${PASSWORD}
 
-    She changes her password
-        Change password    ${USERNAME}    ${PASSWORD}    ${NEW PASSWORD}
+    비밀번호를 변경할 수 있다
+        비밀번호 변경    ${USERNAME}    ${PASSWORD}    ${NEW PASSWORD}
         Status should be    SUCCESS
 
-    She can log in with the new password
-        Login    ${USERNAME}    ${NEW PASSWORD}
+    새로운 비밀번호로 로그인 할 수 있다
+        로그인    ${USERNAME}    ${NEW PASSWORD}
 
-    She cannot use the old password anymore
+    이전 비밀번호로는 로그인 할 수 없다
         Attempt to login with credentials    ${USERNAME}    ${PASSWORD}
         Status should be    Access Denied
 
-User-defined keywords can include actions defined by other user-defined or
-library keywords. As you can see from this example, user-defined keywords can
-take parameters. They can also return values and even contain FOR loops. For
-now, the important thing to know is that user-defined keywords enable test
-creators to create reusable steps for common action sequences. User-defined
-keywords can also help the test author keep the tests as readable as possible
-and use appropriate abstraction levels in different situations.
 
 Variables
 =========
@@ -193,9 +322,9 @@ Variables
 Defining variables
 ------------------
 
-Variables are an integral part of the Robot Framework. Usually any data used in
-tests that is subject to change is best defined as variables. Syntax for
-variable definition is quite simple, as seen in this variable table:
+- 일반적으로 변경될 수 있는 테스트에 사용되는 모든 데이터는 변수로 정의하는 것이 가장 좋다.
+
+다음은 위 테스트에서 사용되는 변수들을 정의한 것이다:
 
 .. code:: robotframework
 
@@ -207,26 +336,31 @@ variable definition is quite simple, as seen in this variable table:
     ${PWD INVALID LENGTH}     test Password must be 7-12 characters long 어야 한다.
     ${PWD INVALID CONTENT}    Password must be a combination of lowercase and uppercase letters and numbers
 
-Variables can also be given from the command line which is useful if
-the tests need to be executed in different environments. For example
-this demo can be executed like::
+변수는 테스트 실행 시에 command line에서 변경할 수 있다.
 
-   robot --variable USERNAME:johndoe --variable PASSWORD:J0hnD0e QuickStart.rst
+예:
 
-In addition to user defined variables, there are some built-in variables that
-are always available. These variables include `${TEMPDIR}` and `${/}` which
-are used in the above example.
+.. code:: console
+
+    $ pybot --variable USERNAME:johndoe --variable PASSWORD:J0hnD0e QuickStart_ko.rst
+
+또한 Robot Framework 은 항상 사용할 수 있는 `${TEMPDIR}` 와 `${/}` 같은
+내장 변수 `Built-in variables`__ 를 제공한다.
+
+__ https://robotframework.org/robotframework/latest/RobotFrameworkUserGuide.html#built-in-variables
+
 
 Using variables
 ---------------
 
-Variables can be used in most places in the test data. They are most commonly
-used as arguments to keywords like the following test case demonstrates.
-Return values from keywords can also be assigned to variables and used later.
-For example, the following `Database Should Contain` `user keyword`_ sets
-database content to `${database}` variable and then verifies the content
-using BuiltIn_ keyword `Should Contain`. Both library and user keywords can
-return values.
+- 테스트 데이터의 대부분의 위치에서 변수를 사용할 수 있다.
+- 변수는 대부분의 키워드의 인자로 사용된다.
+- 반환값을 변수에 할당하고 다시 사용할 수도 있다. 예를 들어,
+  `Database Should Contain` 에서 "Get File" 키워드 ( `Library keywords`_ 참조 ) 는 `${database}` 변수에
+  데이터베이스 내용을 설정하고,
+  `BuiltIn`_ 키워드인 `Should Contain` 를 사용하여 내용을 확인한다.
+  라이브러리 키워드와 사용자 키워드 모두 반환값을 가질 수 있다.
+- `[Tags]` 는 `Using tags`_ 에서 설명한다.
 
 .. _User keyword: `User keywords`_
 .. _BuiltIn: `Standard libraries`_
@@ -247,22 +381,47 @@ return values.
         ${database} =     Get File    ${DATABASE FILE}
         Should Contain    ${database}    ${username}\t${password}\t${status}\n
 
+
 Organizing test cases
 =====================
 
 Test suites
 -----------
 
-Collections of test cases are called test suites in Robot Framework. Every
-input file which contains test cases forms a test suite. When `executing this
-guide`_, you see test suite `QuickStart` in the console output. This name is
-derived from the file name and it is also visible in reports and logs.
+Test cases 의 집합을 *test suite* 라고 한다.
+보통 하나의 파일에 `Test cases`_ 들을 기술하면 파일명이 Test suite의 이름이 된다.
+이 가이드의 Test suites 명은 파일명인 `QuickStart_ko` 이다.
 
-It is possible to organize test cases hierarchically by placing test case
-files into directories and these directories into other directories. All
-these directories automatically create higher level test suites that get their
-names from directory names. Since test suites are just files and directories,
-they are trivially placed into any version control system.
+또한 여러 파일과 디렉토리 구조를 사용하여 `Test suites`_ 구성할 수 있는데,
+다음은 구성의 한 예이다:
+
+.. code:: console
+
+    My Test Suite
+    ├── Login Tests
+    │   ├── Login Test 1.robot
+    │   ├── Login Test 2.robot
+    │   └── ...
+    ├── User Tests
+    │   ├── User Creation Test.robot
+    │   ├── User Management Test.robot
+    │   └── ...
+    ├── Product Tests
+    │   ├── Product Creation Test.robot
+    │   ├── Product Management Test.robot
+    │   └── ...
+    ├── ...
+    └── Common Resources
+        ├── Resource 1.robot
+        ├── Resource 2.robot
+        └── ...
+
+위 예에서
+
+- Common Resources 디렉토리는 `Library`_ 등을 포함할 수 있다.
+
+.. _Library: `Creating test libraries`_
+
 
 Setups and teardowns
 --------------------
@@ -348,7 +507,7 @@ the keyword `Create User` is mapped to actual implementation of the method
         def attempt_to_login_with_credentials(self, username, password):
             self._run_command('login', username, password)
 
-        def status_should_be2(self, expected_status):
+        def status_should_be(self, expected_status):
             if expected_status != self._status:
                 raise AssertionError("Expected status to be '%s' but was '%s'."
                                      % (expected_status, self._status))
