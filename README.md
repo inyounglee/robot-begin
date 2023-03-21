@@ -335,3 +335,9 @@ on windows
   ```
 
   - project, copyright, author, language는 "sphinx-quickstart" 실행 입력한 값이다.
+
+#### 샘플 생성 완성
+
+- QuickStartGuide 에서 QuickStart_ko.rst 로 pdf 변환 샘플 생성 성공
+- index.rst, conf.py.sample_4ko 참조
+- 생성 파일: QuickStart_ko_pdf생성_샘플.pdf
