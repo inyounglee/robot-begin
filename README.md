@@ -341,3 +341,57 @@ on windows
 - QuickStartGuide 에서 QuickStart_ko.rst 로 pdf 변환 샘플 생성 성공
 - index.rst, conf.py.sample_4ko 참조
 - 생성 파일: QuickStart_ko_pdf생성_샘플.pdf
+
+## *) Selenium 을 이용한 웹 스크랩핑 (with robotframework)
+
+- 브라우저의 동작을 그대로 사용할 수 있는데 장점이 있다.
+- 브라우저를 직접 실행시키기 때문에 느리다.
+
+### QuickStartGuide / SeleniumGuide.rst
+
+테스트를 위해 완벽하게 동작하는 robot test cases 작성 rst 이다.
+
+### 스크랩핑 예제
+
+- Title 가져오기
+
+  ```shell
+  ${title}=  Get Title
+  ```
+
+- 텍스트 또는 속성 값을 가져오기
+
+  ```shell
+  ${text}=  Get Text  id:element_id
+  ${attribute_value}=  Get Element Attribute  xpath:/path/to/element  attribute_name
+  ```
+
+- 스크래핑한 정보를 로그에 출력하거나 파일에 저장
+
+  ```shell
+  Log  ${title}
+  Append To File  ${text}  output.txt
+  ```
+
+- 전체 예제
+
+  ```shell
+  *** Settings ***
+  Library  SeleniumLibrary
+  Suite Setup  Open Browser  https://example.com  chrome
+  Suite Teardown  Close Browser
+  
+  *** Test Cases ***
+  Scraping Test
+      ${title}=  Get Title
+      Log  Page Title: ${title}
+      ${login_text}=  Get Text  xpath://button[contains(@class, 'login-btn')]
+      Log  Login Button Text: ${login_text}
+  ```
+
+- 실제 동작하는 파일: .robot
+
+파일명 | 설명
+---|---
+get_product_name.robot | 접속 첫 페이지에서 상품명 가져오기 (하나만)
+get_product_name_list.robot | 접속 첫 페이지에서 상품명 가져오기 (여러개)

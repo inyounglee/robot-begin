@@ -1,6 +1,8 @@
 # Created by https://www.toptal.com/developers/gitignore/api/windows,visualstudiocode,python
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,python
 
+selenium-screenshot-*.png
+
 ### reStructuredText 관련
 rst_test.html
 statemachine.html
