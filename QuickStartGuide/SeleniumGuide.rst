@@ -75,6 +75,7 @@ chrome 브라우저가 open 했다가 close 하는 것을 확인할 수 있다. 
 
     *** Settings ***
     Library           SeleniumLibrary
+    Library           OperatingSystem
     
     Suite Setup       Open Browser    ${url}    ${browser}
     Suite Teardown    Close Browser
@@ -164,8 +165,12 @@ XPath로 Element 찾기
 
 - 상품 목록에서 n 번째 상품명 선택
   ( `예제` 는 `"//*[@id="productList"]/div/div[${index}]/div[2]/div[1]/a"` )
+  , n값을 사용자 입력을 받는 테스트 (중요: `Dialogs`_ 라이브러리 사용)
 
     .. code:: robotframework
+
+        *** Settings ***
+        Library    Dialogs
 
         *** Keywords ***
         n번째 상품명은
@@ -178,3 +183,16 @@ XPath로 Element 찾기
         2번째 상품명 출력
             ${product_name}=    n번째 상품명은    2
             Log    ${product_name}
+
+        사용자가 입력한 n번째 상품명 출력
+            ${input}=  Get Value From User    몇번째 상품명을 가져올지 숫자 입력:
+            ${product_name}=    n번째 상품명은    ${input}
+            Log    ${product_name}
+
+    - 위 예제에서 Dialog는 다음과 같이 뜬다.
+
+        .. image:: ./Dialogs.png
+            :width: 220px
+            :align: center
+
+.. _Dialogs: https://robotframework.org/robotframework/latest/libraries/Dialogs.html#Get%20Value%20From%20User

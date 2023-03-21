@@ -245,13 +245,13 @@ Library keywords
 
 - `*** Settings ***` 섹션 `Library` 를 사용하여 정의한다.
 - "표준 라이브러리" `Standard libraries`_ 는 
-  `OperatingSystem`, `Screenshot` and `BuiltIn` 등이 있으며,
+  `OperatingSystem`_, `Screenshot` and `BuiltIn` 등이 있으며,
 - "외부 라이브러리"는 예를 들어 웹을 테스트하기 위한 `Selenium2Library`_ 가 있는데
   이는 별도로 설치해야 한다.
 - 그리고 "사용자 정의 라이브러리"는 `create custom test libraries`__ 와 같이 구현하고
   `Library` 설정을 사용하여 import 한 후 사용할 수 있다.
 
-이 가이드에서는 `OperatingSystem` 라이브러리 (`Remove File` 등을 위해)와,
+이 가이드에서는 `OperatingSystem`_ 라이브러리 (`Remove File` 등을 위해)와,
 `LoginLibrary` 라이브러리 (`Attempt to login with credentials` 등을 위해)를 import 한다.
 
 아래는 `OperatingSystem` 라이브러리와 `LoginLibrary` 라이브러리를 import 하는 예이다:
@@ -264,6 +264,7 @@ Library keywords
 
 .. _Standard libraries: http://robotframework.org/robotframework/#standard-libraries
 .. _Selenium2Library: https://github.com/rtomac/robotframework-selenium2library/#readme
+.. _OperatingSystem: http://robotframework.org/robotframework/latest/libraries/OperatingSystem.html
 __ `Creating test libraries`_
 
 User keywords
