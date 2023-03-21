@@ -161,3 +161,20 @@ XPath로 Element 찾기
             Wait Until Page Contains Element    xpath:.//a[contains(text(),'Log in')]
             Click Element    xpath:.//a[contains(text(),'Log in')]
             Wait Until Page Contains Element    xpath://*[@id="loginForm"]/div/div/button
+
+- 상품 목록에서 n 번째 상품명 선택
+  ( `예제` 는 `"//*[@id="productList"]/div/div[${index}]/div[2]/div[1]/a"` )
+
+    .. code:: robotframework
+
+        *** Keywords ***
+        n번째 상품명은
+            [Arguments]    ${index}
+            @{Elements}=    Get WebElements    xpath:.//div[contains(@class,'product-list')]/a/div/div[1]/span
+            ${product_name}=    Get Text    ${Elements}[${index}]
+            [Return]    ${product_name}
+
+        *** Test Cases ***
+        2번째 상품명 출력
+            ${product_name}=    n번째 상품명은    2
+            Log    ${product_name}
