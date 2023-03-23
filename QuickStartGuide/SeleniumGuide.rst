@@ -76,10 +76,13 @@ chrome 브라우저가 open 했다가 close 하는 것을 확인할 수 있다. 
     *** Settings ***
     Library           SeleniumLibrary
     Library           OperatingSystem
+    Library           DatabaseLibrary
     
-    Suite Setup       Open Browser    ${url}    ${browser}
-    Suite Teardown    Close Browser
-    
+    Suite Setup
+        Open Browser    ${url}    ${browser}
+    Suite Teardown
+        Close Browser
+   
     *** Variables ***
     ${url}            http://localhost:5000
     ${browser}        chrome
@@ -196,3 +199,76 @@ XPath로 Element 찾기
             :align: center
 
 .. _Dialogs: https://robotframework.org/robotframework/latest/libraries/Dialogs.html#Get%20Value%20From%20User
+
+DB 테스트
+---------
+
+- DB 테스트를 위해 `DatabaseLibrary`_ 를 설치 이용한다. (**주: 설치해야 한다.** franz-see에 의해 Python으로 구현되어 있음)
+  본 테스트에서는 이를 이용한다.
+
+    .. code:: bash
+        
+            $ pip install robotframework-databaselibrary
+
+- 또는 DB 테스트를 위해 `DBLibrary`_ 를 설치한다.
+  (이것은 github copilot이 추천해준 라이브러리, Java로 구현되어 있음)
+
+    .. code:: bash
+    
+        $ pip install robotframework-dblibrary
+
+MariaDB에 접속하고 접속 해제
+
+- Settings 절에 아래와 같이 Library를 추가해야 한다.
+  Suite Setup/Teardown이 하나만 허용하므로 위에 `로그인 테스트`_ 에 기술한다.
+
+    .. code:: text
+    
+        Library           DatabaseLibrary
+        
+        Suite Setup
+            Connect To Database    ${DBAPI_NAME}    ${DB_NAME}    ${DB_USER}    ${DB_PASSWORD}    ${DB_HOST}    ${DB_PORT}
+        Suite Teardown
+            Disconnect From Database
+
+.. code:: robotframework
+
+    *** Test Cases ***
+    MariaDB 접속 테스트
+        [Documentation]    MariaDB 접속 테스트
+        Connect To Database    ${DBAPI_NAME}    ${DB_NAME}    ${DB_USER}    ${DB_PASSWORD}    ${DB_HOST}    ${DB_PORT}
+        ${result}=    Query    SELECT 1
+        Log Many    ${result}
+        Disconnect From Database
+
+    *** Variables ***
+    ${DBAPI_NAME}       pymysql
+    ${DBAPI_MODULE}     pymysql
+    ${DB_NAME}          test
+    ${DB_USER}          test
+    ${DB_PASSWORD}      test
+    ${DB_HOST}          localhost
+    ${DB_PORT}          3306
+    ${DB_PARAMETERS}
+
+
+.. _DatabaseLibrary: https://franz-see.github.io/Robotframework-Database-Library/api/0.5/DatabaseLibrary.html
+.. _DBLibrary: https://github.com/MarketSquare/robotframework-dblibrary 
+
+테스트 케이스 실행 또는 제외
+-----------------------------
+
+- 테스트 케이스 실행
+
+    .. code:: bash
+        
+        $ robot --test "테스트 케이스 이름" SeleninumGuide.rst
+        > robot.exe --test "MariaDB 접속 테스트" .\SeleniumGuide.rst
+        > robot.exe --test "MariaDB*" .\SeleniumGuide.rst
+
+- 테스트 케이스 제외
+
+    .. code:: bash
+            
+        $ robot --exclude "테스트 케이스 이름" SeleninumGuide.rst
+        > robot.exe --exclude "MariaDB 접속 테스트" .\SeleniumGuide.rst
