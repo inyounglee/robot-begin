@@ -78,10 +78,8 @@ chrome 브라우저가 open 했다가 close 하는 것을 확인할 수 있다. 
     Library           OperatingSystem
     Library           DatabaseLibrary
     
-    Suite Setup
-        Open Browser    ${url}    ${browser}
-    Suite Teardown
-        Close Browser
+    Suite Setup       Open Browser    ${url}    ${browser}
+    Suite Teardown    Close Browser
    
     *** Variables ***
     ${url}            http://localhost:5000
@@ -106,6 +104,13 @@ chrome 브라우저가 open 했다가 close 하는 것을 확인할 수 있다. 
     Page Should Contain
         [Arguments]    ${expected_text}
         Wait Until Page Contains    ${expected_text}    timeout=10s
+
+.. error::
+
+    [ ERROR ] Error in file 'D:\works\robot-begin\QuickStartGuide\SeleniumGuide.rst' on line 9: Non-existing setting ''.
+    `Suite Setup` 과 `Suite Teardown` 는 여러줄로 작성할 수 있으나,
+    한 줄일때는 `Suite Setup` 과 `Suite Teardown` 키워드과 같은 줄에 작성해야 한다.
+
 
 화면이 뜨는 것을 기다리기
 --------------------------
@@ -231,6 +236,12 @@ MariaDB에 접속하고 접속 해제
         Suite Teardown
             Disconnect From Database
 
+.. error::
+
+    `Connect To Database` 를 `Suite Setup` 에서 사용을 하면 `Query` 키워드 동작시에 다음과 같은 오류가 발생한다.
+    `AttributeError: 'NoneType' object has no attribute 'cursor'`
+    따라서 위와 같이 말고, 아래와 같이 `MariaDB 접속 테스트` 에서 Query 전과 후에 `Disconnect From Database` 로 함께 사용한다.
+
 .. code:: robotframework
 
     *** Test Cases ***
@@ -252,7 +263,20 @@ MariaDB에 접속하고 접속 해제
     ${DB_PARAMETERS}
 
 
-.. _DatabaseLibrary: https://franz-see.github.io/Robotframework-Database-Library/api/0.5/DatabaseLibrary.html
+Insert 테스트
+
+.. code:: robotframework
+
+    *** Test Cases ***
+    MariaDB Insert 테스트
+        [Documentation]    MariaDB Insert 테스트
+        Connect To Database    ${DBAPI_NAME}    ${DB_NAME}    ${DB_USER}    ${DB_PASSWORD}    ${DB_HOST}    ${DB_PORT}
+        ${result}=    Execute Sql String    INSERT INTO user (name, age) VALUES ('test', 10)
+        Log    ${result}
+        Disconnect From Database
+
+
+.. _DatabaseLibrary: https://franz-see.github.io/Robotframework-Database-Library/api/1.2.2/DatabaseLibrary.html
 .. _DBLibrary: https://github.com/MarketSquare/robotframework-dblibrary 
 
 테스트 케이스 실행 또는 제외
