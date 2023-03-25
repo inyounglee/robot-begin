@@ -88,3 +88,35 @@ Robot Framework의 Variable 들을 파일에서 읽는 예제
 .. _`Collections`: http://robotframework.org/robotframework/latest/libraries/Collections.html
 .. _`String`: http://robotframework.org/robotframework/latest/libraries/String.html
 .. _`BuiltIn`: http://robotframework.org/robotframework/latest/libraries/BuiltIn.html
+
+
+예제 2 (Settings 섹션에서)
+----------------------------
+
+본 예제는 Settings 섹션에서 Variables 로 파일에서 읽어온 값을 사용하는 예제이다.
+
+.. code:: robotframework
+
+    *** Settings ***
+    Variables    variables.py  ${OPTIONS}
+
+    *** Variables ***
+    ${OPTIONS}    encoding=utf-8
+
+    *** Test Cases ***
+    Read Variables From File2
+        Log    ${name}
+        Log    ${address}
+        Log    ${phone}
+        Log    ${age}
+
+.. code:: python
+
+    def get_variables(options=""):
+    
+        variables = {"name": "이인영",
+            "address": "서울시 강남구 역삼동",
+            "phone": "010-1234-5678",
+            "age": 25}
+
+        return variables
