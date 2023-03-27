@@ -77,9 +77,10 @@ chrome 브라우저가 open 했다가 close 하는 것을 확인할 수 있다. 
     Library           SeleniumLibrary
     Library           OperatingSystem
     Library           DatabaseLibrary
+    Library           lib/utils.py
     
-    Suite Setup       Open Browser    ${url}    ${browser}
-    Suite Teardown    Close Browser
+    #Suite Setup       Open Browser    ${url}    ${browser}
+    #Suite Teardown    Close Browser
    
     *** Variables ***
     ${url}            http://localhost:5000
@@ -296,3 +297,45 @@ Insert 테스트
             
         $ robot --exclude "테스트 케이스 이름" SeleninumGuide.rst
         > robot.exe --exclude "MariaDB 접속 테스트" .\SeleniumGuide.rst
+
+
+User-Agent 변경
+---------------
+
+.. code:: robotframework
+
+    *** Test Cases ***
+    User-Agent 변경 테스트
+        ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys, selenium.webdriver
+        #${user_agent}=  Set Variable  Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36
+        #${user_agent}=  Set Variable    Inyoung's RobotFramework Test
+        ${user_agent}=  Set Variable    --user-agent="Inyoung's RobotFramework Test"
+        #Call Method  ${options}  add_argument  --user-agent=${user_agent}
+        Call Method  ${options}  add_argument  ${user_agent}
+        Create Webdriver  Chrome  chrome_options=${options}
+        #${desired_capabilities}=  Create Dictionary  chromeOptions=${options.to_capabilities()}
+        #Open Browser  http://localhost:5000  chrome  ${desired_capabilities}
+        Go To    http://localhost:5000
+        wait for    5
+        Close Browser
+
+테스트는 다음과 같이 User-Agent 변경 테스트만 따로 실행한다.
+
+.. code:: bash
+
+    $ robot --test "User-Agent 변경 테스트" .\SeleniumGuide.rst
+
+.. note::
+
+    정확히 다음과 같은 상태에서 테스트가 정상적으로 동작한다.
+    주석처리된 부분은 또 다른 예제들로 실패한다.
+    이후 테스트 필요. by 이인영, 2023-03-27
+
+::
+
+    ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys, selenium.webdriver
+    ${user_agent}=  Set Variable    --user-agent="Inyoung's RobotFramework Test"
+    Call Method  ${options}  add_argument  ${user_agent}
+    Create Webdriver  Chrome  chrome_options=${options}
+    Go To    http://localhost:5000
+ 
