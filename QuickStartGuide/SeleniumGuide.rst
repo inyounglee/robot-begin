@@ -11,7 +11,7 @@
 SeleniumLibrary 설치
 ---------------------
 
-`SeleniumLibrary`_ 는 `Robot Framework`_ 의 테스트 라이브러리입니다.
+`SeleniumLibrary`_ (`Selenium Reference Guide`_) 는 `Robot Framework`_ 의 테스트 라이브러리입니다.
 Robot Framework는 Python으로 작성되었으며, Python 2.7 이상이 설치되어 있어야 합니다.
 
 SeleniumLibrary는 다음과 같이 설치할 수 있습니다.
@@ -39,6 +39,7 @@ SeleniumLibrary는 다음과 같이 설치할 수 있습니다.
 
 .. _Robot Framework: http://robotframework.org
 .. _SeleniumLibrary: https://github.com/robotframework/SeleniumLibrary
+.. _Selenium Reference Guide: https://robotframework.org/SeleniumLibrary/SeleniumLibrary.html
 .. _설치 가이드: https://github.com/robotframework/SeleniumLibrary#installation
 
 
@@ -320,6 +321,7 @@ User-Agent 변경
         Close Browser
 
 테스트는 다음과 같이 User-Agent 변경 테스트만 따로 실행한다.
+(Suite Setup/Teardown을 주석처리하여 동작하지 않도록 설정해야 한다.)
 
 .. code:: bash
 
@@ -329,7 +331,7 @@ User-Agent 변경
 
     정확히 다음과 같은 상태에서 테스트가 정상적으로 동작한다.
     주석처리된 부분은 또 다른 예제들로 실패한다.
-    이후 테스트 필요. by 이인영, 2023-03-27
+    이후 테스트 필요. by 이인영
 
 ::
 
@@ -338,4 +340,105 @@ User-Agent 변경
     Call Method  ${options}  add_argument  ${user_agent}
     Create Webdriver  Chrome  chrome_options=${options}
     Go To    http://localhost:5000
+
+.. note::
+
+    다음의 첫번째가 Robot Framework에서 Selenium WebDriver를 이용하여 요청을 보낼 때 User-Agent 이고,
+    두번째는 Chrome 브라우저로 직접 요청을 보낼 때 User-Agent 이다. 둘이 동일한것을 알 수 있다.
+
+::
+
+    Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
+    Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
+
+
+브라우저 크기를 설정하여 열기
+--------------------------------
+
+* 아래의 예제는 이전 `로그인 테스트`_  에서 Suite Setup/Teardown을 주석처리하여 동작하지 않도록 설정한 후 실행해야 한다.
+
+.. code:: robotframework
+
+    *** Keywords ***
+    Chrome 브라우저 오픈
+        ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys, selenium.webdriver
+        ${windows_size}=  Set Variable    --window-size=1920,1080
+        Call Method  ${options}  add_argument  ${windows_size}
+        Create Webdriver  Chrome  chrome_options=${options}
+        Go To    ${url}
+
+
+    *** Settings ***
+    # 이건 동작하지 않는다.
+    #Suite Setup       Open Browser    ${url}    ${browser}    window_size=1920x1080
+    # 이건 오류가 발생한다. "ValueError: not enough values to unpack (expected 2, got 1)"
+    #Suite Setup       Open Browser    ${url}    ${browser}    desired_capabilities=chromeOptions={"args": ["--window-size=1024,768"]}
+    # 이것도 "Variable '${driver}' not found." 오류가 발생한다.
+    #Suite Setup    ${driver}=    Open Browser    ${url}    ${browser}
+    #...    ${driver}.set_window_size(1920, 1080)
+
+    # 이것은 정상적으로 동작한다.
+    Suite Setup       Chrome 브라우저 오픈
+    Suite Teardown    Close Browser
+
+
+아래의 예제를 Test cases 안에서 사용하면 정상적으로 동작한다.
+그럼, Suite Setup 에서 사용하기 위해서는 어떻게 해야 하나?
+`Chrome 브라우저 오픈` 과 같이 Keyword로 만들어서 사용하면 된다.
+
+::
+
+        ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys, selenium.webdriver
+        ${windows_size}=  Set Variable    --window-size=1920,1080
+        Call Method  ${options}  add_argument  ${windows_size}
+        Create Webdriver  Chrome  chrome_options=${options}
+        Go To    ${url}
  
+
+스크롤하면서 목록 가져오기
+--------------------------------
+
+* 본 예제는 python-test/flask-shop 을 대상으로 제작된 것이다.
+
+.. code:: robotframework
+
+    *** Keywords ***
+    Apparel 메뉴 선택
+        Click Element    xpath:/html/body/header/div[3]/nav/ul/li[1]/a[contains(text(),"Apparel")]
+        # Apparel 제목을 읽을 수 있을때까지 기다린다.
+        Wait Until Page Contains Element    xpath://*[@id="product-list-page"]/div/div[2]/div/div[1]/h1/strong[contains(text(),"Apparel")]
+
+    Scroll to Bottom
+        Execute JavaScript    window.scrollTo(0, document.body.scrollHeight)
+
+    *** Test cases ***
+    Apparel 제품 목록 읽기
+        [Documentation]    Apparel 제품 목록 읽기
+        Apparel 메뉴 선택
+        ${product_list}=    Get Webelements    xpath://*[@id="product-list-page"]/div/div[2]/div/div[3]/div/div[1]/div[contains(@class,"product-list")]
+        ${product_list_count}=    Get Length    ${product_list}
+        Log Many    ${product_list}
+        Log Many    ${product_list_count}
+        FOR    ${i}    IN RANGE    0    ${product_list_count}
+            ${element}=    Set Variable    xpath://*[@id="product-list-page"]/div/div[2]/div/div[3]/div/div[1]/div[${i}+1]/a/div/div[1]/span
+            Wait Until Page Contains Element    ${element}
+            Run Keyword And Ignore Error    Scroll Element Into View    ${element}
+            wait for    1
+            ${product_name}=    Get Text    ${element}
+            Log Many    ${product_name}
+        END
+        Scroll to Bottom
+        wait for    3
+
+::
+
+    Apparel 제품 목록:
+    //*[@id="product-list-page"]/div/div[2]/div/div[3]/div/div[1]/div[contains(@class, "product-list")]
+    Apparel 제품명:
+    //*[@id="product-list-page"]/div/div[2]/div/div[3]/div/div[1]/div[1]/a/div/div[1]/span
+
+.. error::
+
+    위에서 `Run Keyword And Ignore Error` 를 사용하여
+    `Scroll Element Into View` 키워드 실행시 발생하는 오류
+    `MoveTargetOutOfBoundsException: Message: move target out of bounds` 를 무시하고 실행하도록 하여 해결한다.
