@@ -352,8 +352,8 @@ User-Agent 변경
     Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/111.0.0.0 Safari/537.36
 
 
-브라우저 크기를 설정하여 열기
---------------------------------
+브라우저 크기를 설정하여 열기 및 옵션들 (Chrome)
+----------------------------------------------------
 
 * 아래의 예제는 이전 `로그인 테스트`_  에서 Suite Setup/Teardown을 주석처리하여 동작하지 않도록 설정한 후 실행해야 한다.
 
@@ -362,8 +362,13 @@ User-Agent 변경
     *** Keywords ***
     Chrome 브라우저 오픈
         ${options}=  Evaluate  sys.modules['selenium.webdriver'].ChromeOptions()  sys, selenium.webdriver
+        # 브라우저 크기를 지정한다.
         ${windows_size}=  Set Variable    --window-size=1920,1080
         Call Method  ${options}  add_argument  ${windows_size}
+        # chrome의 default 다운로드 경로를 지정한다. (웹에서 다운로드 시)
+        ${prefs}=  Create Dictionary
+        ...  download.default_directory=D:\works\robot-begin\QuickStartGuide\downloads
+        Call Method  ${options}  add_experimental_option  prefs  ${prefs}
         Create Webdriver  Chrome  chrome_options=${options}
         Go To    ${url}
 
@@ -400,7 +405,20 @@ User-Agent 변경
 
 * 본 예제는 python-test/flask-shop 을 대상으로 제작된 것이다.
 
+다운로드 이미지 예제 추가 (`RequestsLibrary`_ 라이브러리를 사용)
+
+`RequestsLibrary`_ 설치
+
+.. code:: bash
+
+    $ pip install robotframework-requests
+
+
 .. code:: robotframework
+
+    *** Settings ***
+    Library    RequestsLibrary
+
 
     *** Keywords ***
     Apparel 메뉴 선택
@@ -410,6 +428,12 @@ User-Agent 변경
 
     Scroll to Bottom
         Execute JavaScript    window.scrollTo(0, document.body.scrollHeight)
+
+    Download File
+        [Arguments]    ${url}    ${file_path}
+        ${response}=    GET    ${url}    stream=True
+        Run Keyword If  '${response.status_code}'=='200'    Create Binary File    ${file_path}    ${response.content}
+
 
     *** Test cases ***
     Apparel 제품 목록 읽기
@@ -426,6 +450,10 @@ User-Agent 변경
             wait for    1
             ${product_name}=    Get Text    ${element}
             Log Many    ${product_name}
+            ${img_src}=    Get Element Attribute    //*[@id="product-list-page"]/div/div[2]/div/div[3]/div/div[1]/div[${i}+1]/a/div/div[1]/img    src
+            Log         ${img_src}
+            # 이미지 다운로드
+            Download File    ${img_src}    downloads/${product_name}.jpg
         END
         Scroll to Bottom
         wait for    3
@@ -442,3 +470,6 @@ User-Agent 변경
     위에서 `Run Keyword And Ignore Error` 를 사용하여
     `Scroll Element Into View` 키워드 실행시 발생하는 오류
     `MoveTargetOutOfBoundsException: Message: move target out of bounds` 를 무시하고 실행하도록 하여 해결한다.
+
+
+.. _RequestsLibrary: https://marketsquare.github.io/robotframework-requests/doc/RequestsLibrary.html

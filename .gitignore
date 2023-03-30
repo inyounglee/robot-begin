@@ -2,6 +2,7 @@
 # Edit at https://www.toptal.com/developers/gitignore?templates=windows,visualstudiocode,python
 
 selenium-screenshot-*.png
+/QuickStartGuide/downloads
 
 ### reStructuredText 관련
 rst_test.html
