@@ -158,6 +158,17 @@ Workflow tests
         Attempt to login with credentials    betty    wrong
         Status Should Be    Access Denied
 
+    잘못된 비밀번호로 로그인 시도 (강제 BuiltIn Fail 될 것이다.)
+        유효한 사용자 생성    betty    P4ssw0rd
+        Attempt to login with credentials    betty    wrong
+        Fail    이것은 사용자가 입력한 Fail 메시지 입니다.    그리고 이것은 두번째 메시지
+
+    잘못된 비밀번호로 로그인 시도 (강제 Failmsg 될 것이다.)
+        유효한 사용자 생성    betty    P4ssw0rd
+        Attempt to login with credentials    betty    wrong
+        Failmsg    이것은 사용자가 입력한 Fail 메시지 입니다.    그리고 이것은 두번째 메시지
+
+
 위에서 보듯이, 테스트 케이스는 테스트의 흐름을 정의한다.
 
 - "사용자 계정 생성 로그인 기능", "잘못된 비밀번호로 로그인 시도"은 테스트 케이스의 이름이고,
@@ -518,6 +529,11 @@ Creating test libraries
             if expected_status != self._status:
                 raise AssertionError("Expected status to be '%s' but was '%s'."
                                      % (expected_status, self._status))
+
+        def failmsg(self, msg, msg2):
+            raise AssertionError("강제로 FAIL 그리고 메시지는: '%s', '%s'."
+                                     % (msg, msg2))
+
 
         def _run_command(self, command, *args):
             command = [sys.executable, self._sut_path, command] + list(args)

@@ -29,6 +29,10 @@ class LoginLibrary(object):
             raise AssertionError("Expected status to be '%s' but was '%s'."
                                  % (expected_status, self._status))
 
+    def failmsg(self, msg, msg2):
+        raise AssertionError("강제로 FAIL 그리고 메시지는: '%s', '%s'."
+                                 % (msg, msg2))
+
     def _run_command(self, command, *args):
         command = [sys.executable, self._sut_path, command] + list(args)
         process = subprocess.Popen(command, universal_newlines=True, stdout=subprocess.PIPE,

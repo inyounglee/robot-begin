@@ -3,6 +3,7 @@
 
 selenium-screenshot-*.png
 /QuickStartGuide/downloads
+sh/
 
 ### reStructuredText 관련
 rst_test.html
